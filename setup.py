@@ -7,14 +7,14 @@ LONG_DESCRIPTION = 'This package is a python wrapper for chat-api.com whatsapp A
 # Setting up
 setup(
        # the name must match the folder name 'verysimplemodule'
-        name="whatsapp", 
+        name="whatsapp-api", 
         version=VERSION,
         author="Ayush Goyal",
         author_email="ayushgoyal.iitkgp@gmail.com",
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
         packages=find_packages(),
-        install_requires=['requests'], # add any additional packages that 
+        install_requires=['requests', 'defcon-utils'], # add any additional packages that 
         # needs to be installed along with your package. Eg: 'caer'
         
         keywords=['whatsapp', 'python'],
