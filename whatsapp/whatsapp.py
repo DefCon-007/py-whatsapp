@@ -1,6 +1,42 @@
 from defcon_utils import BaseAPI
+from enum import Enum 
 
+class MessageType(Enum): 
+    TEXT_MESSAGE = "TEXT_MESSAGE"
+    FILE = "FILE"
+    PTT_AUDIO = "PTT_AUDIO"
+    LINK = "LINK"
+    CONTACT = "CONTACT"
+    LOCATION = "LOCATION"
+    VCARD = "VCARD"
+    PRODUCT = "PRODUCT"
+    
 
+class APIStatus(Enum):
+    INIT = "INITIAL_STATUS"
+    LOADING = "Loading, try again in 1 minute"
+    QR_CODE = "Got QR code that needs to be scanned on the app"
+    AUTHENTICATED = "Authorized successfully"
+    CONFLICT = "WhatsApp is open on another computer or browser."
+    
+    
+    @classmethod
+    def parse_status(cls, data): 
+        data = data.lower().strip()
+        
+        if data == "init": 
+            return cls.INIT
+        elif data == "loading": 
+            return cls.LOADING
+        elif data == "got qr code": 
+            return cls.QR_CODE
+        elif data == "authenticated": 
+            return cls.AUTHENTICATED
+        elif data == "conflict": 
+            return cls.CONFLICT
+        else: 
+            raise Exception("Unknown status: {}".format(data))
+        
 class WhatsApp(BaseAPI):
     TOKEN = None
     INSTANCE_ID = None
@@ -28,7 +64,16 @@ class WhatsApp(BaseAPI):
         authenticated	Authorization passed successfully
         """
         response = self.make_request("status", self.RequestType.GET, full=True)
-        return response
+        data = response.json()
+        parsed_status = APIStatus.parse_status(data.get('accountStatus'))
+        if parsed_status == APIStatus.LOADING: 
+            status_data = data.get('statusData', {})
+            reason = status_data.get('reason', "")
+            parsed_status = APIStatus.parse_status(reason)
+            
+        data['parsed_status'] = parsed_status
+        
+        return data
 
     def takeover(self):
         response = self.make_request("takeover", self.RequestType.POST)

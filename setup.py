@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.1' 
+VERSION = '0.0.3' 
 DESCRIPTION = 'The unofficial python api for whatsapp'
 LONG_DESCRIPTION = 'This package is a python wrapper for chat-api.com whatsapp API, which allows you to control all aspects of your whatsapp account using python.'
 
