@@ -18,11 +18,16 @@ class APIStatus(Enum):
     QR_CODE = "Got QR code that needs to be scanned on the app"
     AUTHENTICATED = "Authorized successfully"
     CONFLICT = "WhatsApp is open on another computer or browser."
+    PAYMENT_REQUIRED = "Instance suspended. Please the pay at the website."
     
     
     @classmethod
     def parse_status(cls, data): 
-        data = data.lower().strip()
+        
+        if data:
+            data = data.lower().strip()
+        else: 
+            raise Exception('Cannot parse None as status')
         
         if data == "init": 
             return cls.INIT
@@ -34,6 +39,8 @@ class APIStatus(Enum):
             return cls.AUTHENTICATED
         elif data == "conflict": 
             return cls.CONFLICT
+        elif data == "payment_required": 
+            return cls.PAYMENT_REQUIRED
         else: 
             raise Exception("Unknown status: {}".format(data))
         
@@ -65,7 +72,10 @@ class WhatsApp(BaseAPI):
         """
         response = self.make_request("status", self.RequestType.GET, full=True)
         data = response.json()
-        parsed_status = APIStatus.parse_status(data.get('accountStatus'))
+        if data.get('error') and "Please pay at app.chat-api.com" in data['error']: 
+            parsed_status = APIStatus.parse_status('payment_required')
+        else:
+            parsed_status = APIStatus.parse_status(data.get('accountStatus'))
         if parsed_status == APIStatus.LOADING: 
             status_data = data.get('statusData', {})
             reason = status_data.get('reason', "")
