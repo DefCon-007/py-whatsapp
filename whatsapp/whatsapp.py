@@ -101,9 +101,12 @@ class WhatsApp(BaseAPI):
     def send_message(self, phone, message):
         assert phone, "Cannot send message without phone numbers"
 
-        phone = self.parse_indian_phone_number(phone)
         response = self.make_request("sendMessage", self.RequestType.POST, body=message, phone=phone)
 
+        return response
+
+    def logout(self): 
+        response = self.make_request("logout", self.RequestType.GET)
         return response
 
     def send_file(self, phone, file_data, file_name, caption=None):
